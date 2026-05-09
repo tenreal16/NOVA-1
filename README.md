@@ -21,7 +21,7 @@ Think of it as a physical Jarvis that lives in your pocket.
 
 ## 🖥️ Interactive Blueprint
 
-> **[→ View Full Engineering Blueprint](./NOVA-1_Engineering_Spec.html)**  
+> **[→ View Full Engineering Blueprint](https://github.com/tenreal16/NOVA-1/blob/main/NOVA-1_Engineering_Spec.html)**  
 > Open in browser for the full interactive design schematic, specs, and system architecture.
 
 ---
