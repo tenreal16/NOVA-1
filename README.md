@@ -4,7 +4,6 @@
 > *A pocket-sized Jarvis. No cloud. No subscription. Just AI.*
 
 ![Status](https://img.shields.io/badge/Status-Concept%20Phase-blue?style=flat-square)
-![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-orange?style=flat-square)
 ![Made by](https://img.shields.io/badge/Concept%20by-Aniket%20Yadav-cyan?style=flat-square)
 
 ---
@@ -161,11 +160,6 @@ NOVA-1 flips that:
 - It learns **you** — not a generic user
 
 ---
-
-## 📄 License
-
-This concept is released under **Creative Commons BY-NC 4.0**  
-You can share and build upon it — but **not for commercial use** without permission.
 
 © 2026 Aniket Yadav — Concept Design
 
