@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVA-1 // Engineering Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --arc: #00d4ff;
+    --arc-dim: #007a94;
+    --gold: #f5a623;
+    --red: #ff3a3a;
+    --green: #00ff88;
+    --bg: #030a10;
+    --panel: #060f1a;
+    --border: #0d2235;
+    --text: #8ab4cc;
+    --bright: #d4eeff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Scanline overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+  /* HEADER */
+  .header {
+    border: 1px solid var(--arc-dim);
+    background: linear-gradient(135deg, #020d17 0%, #051525 100%);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    position: relative;
+    clip-path: polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 0 100%);
+    animation: fadeIn 0.8s ease;
+  }
+
+  .header::before {
+    content: 'STARK INDUSTRIES // SKUNKWORKS DIVISION';
+    position: absolute;
+    top: 8px; right: 48px;
+    font-size: 9px;
+    color: var(--arc-dim);
+    letter-spacing: 3px;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--arc), transparent);
+  }
+
+  .project-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(28px, 6vw, 52px);
+    font-weight: 900;
+    color: var(--arc);
+    text-shadow: 0 0 30px rgba(0,212,255,0.6), 0 0 60px rgba(0,212,255,0.2);
+    letter-spacing: 6px;
+    line-height: 1;
+  }
+
+  .project-sub {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  .header-meta {
+    display: flex;
+    gap: 32px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item { font-size: 10px; color: var(--arc-dim); letter-spacing: 2px; }
+  .meta-item span { color: var(--bright); display: block; font-size: 12px; margin-top: 2px; }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    animation: fadeIn 0.9s ease;
+  }
+
+  .status-pill {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 6px 16px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  .dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot.gold { background: var(--gold); box-shadow: 0 0 6px var(--gold); animation-delay: 0.5s; }
+  .dot.blue { background: var(--arc); box-shadow: 0 0 6px var(--arc); animation-delay: 1s; }
+
+  /* GRID LAYOUT */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-main { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; margin-bottom: 16px; }
+  .span-2 { grid-column: span 2; }
+
+  /* PANELS */
+  .panel {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 20px;
+    position: relative;
+    animation: fadeIn 1s ease;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--arc-dim), transparent);
+  }
+
+  .panel-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--arc);
+    letter-spacing: 3px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .panel-title::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background: var(--arc);
+    box-shadow: 0 0 8px var(--arc);
+  }
+
+  /* 3D DEVICE BLUEPRINT */
+  .device-blueprint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 0;
+  }
+
+  .device-3d {
+    position: relative;
+    width: 160px;
+    height: 400px;
+  }
+
+  /* Main body */
+  .dev-body {
+    position: absolute;
+    width: 120px;
+    height: 360px;
+    left: 20px;
+    top: 20px;
+    border: 2px solid var(--arc);
+    border-radius: 8px;
+    background: linear-gradient(160deg, #071826 0%, #020c15 60%, #0a1f30 100%);
+    box-shadow: 0 0 20px rgba(0,212,255,0.15), inset 0 0 20px rgba(0,0,0,0.5);
+  }
+
+  /* Display panel */
+  .dev-display {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    left: 20px;
+    top: 20px;
+    border: 1px solid var(--arc);
+    background: linear-gradient(135deg, #001a2e, #003352);
+    box-shadow: 0 0 12px rgba(0,212,255,0.4), inset 0 0 10px rgba(0,212,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: var(--arc);
+    letter-spacing: 1px;
+    overflow: hidden;
+  }
+
+  .dev-display::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(0,212,255,0.05) 4px, rgba(0,212,255,0.05) 5px);
+    animation: scanAnim 3s linear infinite;
+  }
+
+  .display-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 7px;
+    color: var(--arc);
+    text-align: center;
+    z-index: 1;
+    animation: blink 2s infinite;
+  }
+
+  /* SIM panel */
+  .dev-sim {
+    position: absolute;
+    width: 30px;
+    height: 20px;
+    right: 8px;
+    top: 40px;
+    border: 1px solid var(--gold);
+    background: #0a1520;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 6px;
+    color: var(--gold);
+  }
+
+  /* USB-C */
+  .dev-usb {
+    position: absolute;
+    width: 24px;
+    height: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 8px;
+    border: 1px solid var(--text);
+    background: #020d17;
+    border-radius: 2px;
+  }
+
+  /* Audio jack */
+  .dev-jack {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    right: 16px;
+    bottom: 8px;
+    border: 1px solid var(--text);
+    border-radius: 50%;
+    background: #020d17;
+  }
+
+  /* Earbud slide */
+  .dev-slide {
+    position: absolute;
+    width: 116px;
+    height: 24px;
+    left: 2px;
+    bottom: 30px;
+    border: 1px solid var(--green);
+    background: linear-gradient(90deg, #001a0d, #00120a);
+    box-shadow: 0 0 8px rgba(0,255,136,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+  }
+
+  .earbud {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  .earbud:last-child { animation-delay: 0.3s; }
+
+  .slide-label {
+    font-size: 6px;
+    color: var(--green);
+    letter-spacing: 1px;
+  }
+
+  /* Mic dots */
+  .dev-mics {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mic-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--arc-dim);
+    border: 1px solid var(--arc);
+  }
+
+  /* Power LED */
+  .dev-led {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    right: 12px;
+    top: 14px;
+    background: var(--arc);
+    box-shadow: 0 0 8px var(--arc);
+    animation: pulse 1s infinite;
+  }
+
+  /* SPEC ROWS */
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(13,34,53,0.8);
+    gap: 12px;
+  }
+
+  .spec-row:last-child { border-bottom: none; }
+
+  .spec-label {
+    font-size: 9px;
+    color: var(--arc-dim);
+    letter-spacing: 2px;
+    flex-shrink: 0;
+    min-width: 80px;
+  }
+
+  .spec-value {
+    font-size: 11px;
+    color: var(--bright);
+    text-align: right;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+  }
+
+  /* COMPONENT CARDS */
+  .comp-card {
+    border: 1px solid var(--border);
+    background: linear-gradient(135deg, #050e18 0%, #030a12 100%);
+    padding: 14px;
+    border-radius: 2px;
+    position: relative;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .comp-card:hover {
+    border-color: var(--arc-dim);
+    box-shadow: 0 0 15px rgba(0,212,255,0.08);
+  }
+
+  .comp-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--arc);
+    box-shadow: 0 0 8px var(--arc);
+  }
+
+  .comp-card.gold::after { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+  .comp-card.red::after { background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .comp-card.green::after { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+  .comp-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--arc);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .comp-card.gold .comp-name { color: var(--gold); }
+  .comp-card.red .comp-name { color: var(--red); }
+  .comp-card.green .comp-name { color: var(--green); }
+
+  .comp-desc {
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.6;
+    font-family: 'Rajdhani', sans-serif;
+  }
+
+  .comp-chip {
+    display: inline-block;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    color: var(--arc);
+    font-size: 8px;
+    padding: 2px 8px;
+    margin: 4px 4px 0 0;
+    letter-spacing: 1px;
+  }
+
+  .comp-card.gold .comp-chip {
+    background: rgba(245,166,35,0.08);
+    border-color: rgba(245,166,35,0.2);
+    color: var(--gold);
+  }
+
+  .comp-card.green .comp-chip {
+    background: rgba(0,255,136,0.08);
+    border-color: rgba(0,255,136,0.2);
+    color: var(--green);
+  }
+
+  .comp-card.red .comp-chip {
+    background: rgba(255,58,58,0.08);
+    border-color: rgba(255,58,58,0.2);
+    color: var(--red);
+  }
+
+  /* AI FLOW */
+  .ai-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    position: relative;
+  }
+
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 36px;
+    width: 1px;
+    height: calc(100% - 24px);
+    background: linear-gradient(180deg, var(--arc-dim), transparent);
+  }
+
+  .flow-num {
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--arc);
+    background: rgba(0,212,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--arc);
+    flex-shrink: 0;
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  .flow-content { flex: 1; }
+  .flow-title { font-size: 11px; color: var(--bright); letter-spacing: 1px; font-family: 'Rajdhani', sans-serif; font-weight: 700; }
+  .flow-detail { font-size: 10px; color: var(--text); margin-top: 2px; line-height: 1.5; }
+
+  /* PERFORMANCE BAR */
+  .perf-row { margin-bottom: 14px; }
+  .perf-label { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 10px; }
+  .perf-label .name { color: var(--text); letter-spacing: 1px; }
+  .perf-label .val { color: var(--arc); }
+
+  .perf-bar {
+    height: 4px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .perf-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--arc-dim), var(--arc));
+    box-shadow: 0 0 8px var(--arc);
+    border-radius: 0;
+    animation: barLoad 1.5s ease forwards;
+    width: 0;
+  }
+
+  .perf-fill.gold { background: linear-gradient(90deg, #a06b10, var(--gold)); box-shadow: 0 0 8px var(--gold); }
+  .perf-fill.green { background: linear-gradient(90deg, #007a44, var(--green)); box-shadow: 0 0 8px var(--green); }
+  .perf-fill.red { background: linear-gradient(90deg, #8b1c1c, var(--red)); box-shadow: 0 0 8px var(--red); }
+
+  /* CHALLENGE TABLE */
+  .challenge-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 1px;
+    font-size: 10px;
+  }
+
+  .challenge-row > div {
+    background: var(--panel);
+    padding: 8px 10px;
+    color: var(--text);
+    line-height: 1.5;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+  }
+
+  .challenge-row.header > div {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 8px;
+    color: var(--arc-dim);
+    letter-spacing: 2px;
+    background: #040d16;
+  }
+
+  .challenge-row > div:first-child { color: var(--gold); }
+  .challenge-row.header > div:first-child { color: var(--arc-dim); }
+
+  /* FOOTER */
+  .footer {
+    border: 1px solid var(--border);
+    padding: 16px 24px;
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9px;
+    color: var(--arc-dim);
+    letter-spacing: 2px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-sig {
+    font-family: 'Orbitron', sans-serif;
+    color: var(--arc);
+    font-size: 11px;
+    letter-spacing: 4px;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  @keyframes scanAnim {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+
+  @keyframes barLoad {
+    to { width: var(--target-width); }
+  }
+
+  /* DIVIDER */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    font-size: 9px;
+    color: var(--arc-dim);
+    letter-spacing: 3px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* WATERPROOF BADGE */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid;
+    padding: 4px 12px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    font-family: 'Orbitron', sans-serif;
+    margin: 4px;
+  }
+  .badge.blue { border-color: var(--arc); color: var(--arc); }
+  .badge.gold { border-color: var(--gold); color: var(--gold); }
+  .badge.green { border-color: var(--green); color: var(--green); }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .grid-2, .grid-3, .grid-main { grid-template-columns: 1fr; }
+    .span-2 { grid-column: span 1; }
+    .challenge-row { grid-template-columns: 1fr 1fr; }
+    .challenge-row > div:last-child { grid-column: span 2; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="project-name">NOVA-1</div>
+    <div class="project-sub">NEURAL ON-DEVICE VOICE ASSISTANT — MK.I // CLASSIFIED PROTOTYPE</div>
+    <div class="header-meta">
+      <div class="meta-item">FORM FACTOR <span>6 × 2 × 2 IN CUBOID</span></div>
+      <div class="meta-item">CLEARANCE LEVEL <span>SKUNKWORKS R&D</span></div>
+      <div class="meta-item">REVISION <span>BLUEPRINT v1.0</span></div>
+      <div class="meta-item">STATUS <span style="color:var(--green)">CONCEPT PHASE</span></div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-pill"><span class="dot green"></span>AI CORE ISOLATED</div>
+    <div class="status-pill"><span class="dot blue"></span>BT 5.3 ACTIVE</div>
+    <div class="status-pill"><span class="dot gold"></span>WIFI 6E STANDBY</div>
+    <div class="status-pill"><span class="dot green"></span>IP68 RATED</div>
+    <div class="status-pill"><span class="dot blue"></span>RESPONSE &lt; 5s</div>
+  </div>
+
+  <!-- MAIN: BLUEPRINT + SPECS -->
+  <div class="grid-main">
+
+    <!-- BLUEPRINT -->
+    <div class="panel">
+      <div class="panel-title">DEVICE SCHEMATIC // ORTHOGRAPHIC VIEW</div>
+      <div class="device-blueprint">
+        <div class="device-3d">
+          <div class="dev-body">
+            <!-- LED -->
+            <div class="dev-led"></div>
+
+            <!-- Display 2×2 -->
+            <div class="dev-display" style="width:80px;height:80px;left:20px;top:20px;">
+              <div class="display-text">NOVA-1<br>DISPLAY<br>2×2 IN</div>
+            </div>
+
+            <!-- Mics -->
+            <div class="dev-mics">
+              <div class="mic-dot"></div>
+              <div class="mic-dot"></div>
+              <div class="mic-dot"></div>
+            </div>
+
+            <!-- SIM tray label -->
+            <div style="position:absolute;left:8px;top:118px;font-size:7px;color:var(--gold);letter-spacing:1px;border:1px solid var(--gold);padding:3px 6px;">
+              SIM<br>NANO
+            </div>
+
+            <!-- Sections labels -->
+            <div style="position:absolute;left:8px;top:155px;right:8px;border-top:1px dashed var(--arc-dim);padding-top:8px;">
+              <div style="font-size:7px;color:var(--arc-dim);letter-spacing:1px;text-align:center;">── AI COMPUTE ZONE ──</div>
+              <!-- Chip visualization -->
+              <div style="margin:8px auto;width:60px;height:50px;border:1px solid var(--arc-dim);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;background:rgba(0,212,255,0.04);">
+                <div style="font-size:6px;color:var(--arc);letter-spacing:1px;font-family:'Orbitron',sans-serif;">SoC</div>
+                <div style="font-size:6px;color:var(--text);">NPU+GPU</div>
+                <div style="font-size:5px;color:var(--arc-dim);">ON-DEVICE LLM</div>
+              </div>
+            </div>
+
+            <!-- Battery zone -->
+            <div style="position:absolute;left:8px;top:250px;right:8px;border-top:1px dashed rgba(245,166,35,0.4);padding-top:8px;">
+              <div style="font-size:7px;color:rgba(245,166,35,0.6);letter-spacing:1px;text-align:center;">── POWER CELL ──</div>
+              <div style="margin:6px auto;width:80px;height:30px;border:1px solid rgba(245,166,35,0.4);display:flex;align-items:center;justify-content:center;background:rgba(245,166,35,0.04);">
+                <div style="font-size:6px;color:var(--gold);">4000 mAh LIPO</div>
+              </div>
+            </div>
+
+            <!-- Earbud slide -->
+            <div class="dev-slide">
+              <div class="earbud"></div>
+              <div class="slide-label">◄ SLIDE ► EARBUDS</div>
+              <div class="earbud"></div>
+            </div>
+
+            <!-- USB-C -->
+            <div class="dev-usb"></div>
+            <!-- Audio jack -->
+            <div class="dev-jack"></div>
+
+          </div>
+          <!-- Labels outside -->
+          <div style="position:absolute;left:-60px;top:30px;font-size:7px;color:var(--arc-dim);letter-spacing:1px;text-align:right;line-height:1.8;">
+            DISPLAY<br>MODULE<br>──►
+          </div>
+          <div style="position:absolute;left:-60px;top:120px;font-size:7px;color:var(--gold);letter-spacing:1px;text-align:right;line-height:1.8;">
+            SIM<br>TRAY<br>──►
+          </div>
+          <div style="position:absolute;right:-54px;top:175px;font-size:7px;color:var(--arc-dim);letter-spacing:1px;line-height:1.8;">
+            ◄──<br>MIC<br>ARRAY
+          </div>
+          <div style="position:absolute;right:-54px;top:320px;font-size:7px;color:var(--green);letter-spacing:1px;line-height:1.8;">
+            ◄──<br>EARBUD<br>SLIDE
+          </div>
+        </div>
+
+        <!-- Dimensions -->
+        <div style="text-align:center;margin-top:8px;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--arc-dim);letter-spacing:2px;">6.0 × 2.0 × 2.0 INCHES</div>
+          <div style="font-size:9px;color:var(--text);margin-top:4px;">152 × 51 × 51 mm</div>
+        </div>
+
+        <!-- Badges -->
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:8px;">
+          <span class="badge blue">IP68</span>
+          <span class="badge gold">BT 5.3</span>
+          <span class="badge green">WIFI 6E</span>
+          <span class="badge blue">USB-C</span>
+          <span class="badge gold">3.5mm</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPECS -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+
+      <!-- Physical Specs -->
+      <div class="panel">
+        <div class="panel-title">PHYSICAL SPECS</div>
+        <div class="spec-row">
+          <div class="spec-label">DIMENSIONS</div>
+          <div class="spec-value">6 × 2 × 2 IN</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">DISPLAY</div>
+          <div class="spec-value">2×2 IN AMOLED<br>400×400 px</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">CHARGING</div>
+          <div class="spec-value">USB-C 65W PD</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">AUDIO OUT</div>
+          <div class="spec-value">3.5mm Analog Jack</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">EARBUDS</div>
+          <div class="spec-value">Slide-Out BT 5.3<br>Auto-Pair</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">WATERPROOF</div>
+          <div class="spec-value" style="color:var(--green)">IP68 CERTIFIED<br>1.5m / 30 min</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">BATTERY</div>
+          <div class="spec-value">4000 mAh<br>~12h AI Use</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">WEIGHT</div>
+          <div class="spec-value">~180g EST.</div>
+        </div>
+      </div>
+
+      <!-- Connectivity -->
+      <div class="panel">
+        <div class="panel-title">CONNECTIVITY</div>
+        <div class="spec-row">
+          <div class="spec-label">CELLULAR</div>
+          <div class="spec-value">Nano-SIM<br>4G LTE / 5G</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">WIFI</div>
+          <div class="spec-value">802.11ax (WiFi 6E)<br>2.4 / 5 / 6 GHz</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">BLUETOOTH</div>
+          <div class="spec-value">BT 5.3 LE Audio</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">MICROPHONES</div>
+          <div class="spec-value">3× Beamforming<br>Array</div>
+        </div>
+        <div class="spec-row">
+          <div class="spec-label">SPEAKER</div>
+          <div class="spec-value">2W Stereo Driver</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- AI COMPUTE SECTION -->
+  <div class="panel" style="margin-bottom:16px;">
+    <div class="panel-title">AI COMPUTE ARCHITECTURE // CORE INTELLIGENCE STACK</div>
+    <div class="grid-3">
+      <div class="comp-card">
+        <div class="comp-name">SOC // BRAIN</div>
+        <div class="comp-desc">Qualcomm Snapdragon 8 Gen 3 or MediaTek Dimensity 9300 with dedicated NPU. Handles all on-device inference at hardware speed. No cloud required.</div>
+        <div style="margin-top:8px;">
+          <span class="comp-chip">45 TOPS NPU</span>
+          <span class="comp-chip">4nm NODE</span>
+          <span class="comp-chip">12GB LPDDR5X</span>
+        </div>
+      </div>
+      <div class="comp-card gold">
+        <div class="comp-name">LLM // ON-DEVICE</div>
+        <div class="comp-desc">Quantized 3B–7B parameter model (LLaMA 3.2 / Gemma 2 / Phi-3). Runs fully offline in INT4/INT8 quantized form on 256GB UFS 4.0 internal storage.</div>
+        <div style="margin-top:8px;">
+          <span class="comp-chip">7B PARAMS</span>
+          <span class="comp-chip">INT4 QUANT</span>
+          <span class="comp-chip">256GB UFS 4.0</span>
+        </div>
+      </div>
+      <div class="comp-card green">
+        <div class="comp-name">VOICE // TTS+STT</div>
+        <div class="comp-desc">On-device Speech-to-Text via Whisper Tiny/Base. TTS via Coqui or Kokoro with selectable voice modules — jarvis, female, custom. Max 5s response.</div>
+        <div style="margin-top:8px;">
+          <span class="comp-chip">WHISPER BASE</span>
+          <span class="comp-chip">KOKORO TTS</span>
+          <span class="comp-chip">5 VOICE MODES</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI PROCESSING FLOW -->
+  <div class="grid-2" style="margin-bottom:16px;">
+
+    <div class="panel">
+      <div class="panel-title">JARVIS RESPONSE PIPELINE</div>
+      <div class="ai-flow">
+        <div class="flow-step">
+          <div class="flow-num">01</div>
+          <div class="flow-content">
+            <div class="flow-title">WAKE WORD DETECTION</div>
+            <div class="flow-detail">Always-on DSP listens for "Hey NOVA" at &lt;5mW. Triggers main SoC wake. Beamforming mics isolate voice direction.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">02</div>
+          <div class="flow-content">
+            <div class="flow-title">SPEECH → TEXT (STT)</div>
+            <div class="flow-detail">Whisper Base processes audio locally in ~0.3s. No cloud upload. Works offline. Emotion tone is extracted in parallel.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">03</div>
+          <div class="flow-content">
+            <div class="flow-title">EMOTION + CONTEXT ENGINE</div>
+            <div class="flow-detail">Sentiment analysis classifies user state: stressed, excited, curious, tired. Adjusts LLM system prompt and TTS tone accordingly in real-time.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">04</div>
+          <div class="flow-content">
+            <div class="flow-title">LLM INFERENCE + MEMORY</div>
+            <div class="flow-detail">On-device LLM receives prompt + injected memory context. Generates response. NPU handles token inference at ~30 tok/s.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">05</div>
+          <div class="flow-content">
+            <div class="flow-title">INTERNET AUGMENT (IF NEEDED)</div>
+            <div class="flow-detail">WiFi/SIM used for live queries only. NOVA decides if internet is needed. If yes → fetch → inject context → re-infer. Adds ~1-2s max.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">06</div>
+          <div class="flow-content">
+            <div class="flow-title">TTS OUTPUT → EARBUDS</div>
+            <div class="flow-detail">Kokoro TTS renders voice in selected module. Auto-streams to slide-out earbuds via BT LE Audio. Sub-50ms latency. Total pipeline: &lt;5 seconds.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMORY + ADAPTIVE SYSTEM -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="panel">
+        <div class="panel-title">ADAPTIVE MEMORY SYSTEM</div>
+        <div class="comp-card" style="margin-bottom:10px;border:none;padding:10px 10px 10px 16px;">
+          <div class="comp-name">SHORT-TERM MEMORY</div>
+          <div class="comp-desc">Full conversation context in-session (last 8K tokens). Knows what you said 10 minutes ago. Resets on sleep.</div>
+        </div>
+        <div class="comp-card gold" style="margin-bottom:10px;border:none;padding:10px 10px 10px 16px;">
+          <div class="comp-name">LONG-TERM MEMORY</div>
+          <div class="comp-desc">Vector database (ChromaDB) on-device. Stores user preferences, habits, relationships, schedule patterns, reaction history. Grows daily.</div>
+        </div>
+        <div class="comp-card green" style="border:none;padding:10px 10px 10px 16px;">
+          <div class="comp-name">BEHAVIOURAL LEARNING</div>
+          <div class="comp-desc">Tracks: preferred topics, emotional patterns, daily routine, response style. Fine-tunes system prompt per user. NOVA becomes you-specific over time.</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">VOICE MODULE SELECTION</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid var(--arc-dim);background:rgba(0,212,255,0.04);">
+            <span style="font-size:10px;color:var(--arc);letter-spacing:1px;font-family:'Rajdhani',sans-serif;font-weight:700;">J.A.R.V.I.S MODE</span>
+            <span style="font-size:8px;color:var(--green)">● DEFAULT</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid var(--border);background:rgba(0,0,0,0.3);">
+            <span style="font-size:10px;color:var(--text);letter-spacing:1px;font-family:'Rajdhani',sans-serif;">NOVA FEMALE</span>
+            <span style="font-size:8px;color:var(--arc-dim)">● SELECT</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid var(--border);background:rgba(0,0,0,0.3);">
+            <span style="font-size:10px;color:var(--text);letter-spacing:1px;font-family:'Rajdhani',sans-serif;">CUSTOM CLONED</span>
+            <span style="font-size:8px;color:var(--arc-dim)">● RECORD 30s</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid var(--border);background:rgba(0,0,0,0.3);">
+            <span style="font-size:10px;color:var(--text);letter-spacing:1px;font-family:'Rajdhani',sans-serif;">WHISPER MODE</span>
+            <span style="font-size:8px;color:var(--arc-dim)">● LOW ENERGY</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border:1px solid var(--border);background:rgba(0,0,0,0.3);">
+            <span style="font-size:10px;color:var(--text);letter-spacing:1px;font-family:'Rajdhani',sans-serif;">MULTILINGUAL</span>
+            <span style="font-size:8px;color:var(--arc-dim)">● HINDI / EN</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERFORMANCE METRICS -->
+  <div class="panel" style="margin-bottom:16px;">
+    <div class="panel-title">SYSTEM PERFORMANCE TARGETS</div>
+    <div class="grid-2">
+      <div>
+        <div class="perf-row">
+          <div class="perf-label"><span class="name">VOICE RESPONSE TIME</span><span class="val">&lt; 5.0s TOTAL</span></div>
+          <div class="perf-bar"><div class="perf-fill" style="--target-width:92%"></div></div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label"><span class="name">STT ACCURACY</span><span class="val">97.2%</span></div>
+          <div class="perf-bar"><div class="perf-fill" style="--target-width:97%"></div></div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label"><span class="name">ON-DEVICE LLM SPEED</span><span class="val">30 TOK/s</span></div>
+          <div class="perf-bar"><div class="perf-fill gold" style="--target-width:75%"></div></div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label"><span class="name">WAKE WORD ACCURACY</span><span class="val">99.1%</span></div>
+          <div class="perf-bar"><div class="perf-fill green" style="--target-width:99%"></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="perf-row">
+          <div class="perf-label"><span class="name">EMOTION DETECTION</span><span class="val">7 STATES</span></div>
+          <div class="perf-bar"><div class="perf-fill gold" style="--target-width:80%"></div></div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label"><span class="name">BATTERY LIFE (AI USE)</span><span class="val">~12h</span></div>
+          <div class="perf-bar"><div class="perf-fill green" style="--target-width:70%"></div></div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label"><span class="name">MEMORY RECALL ACCURACY</span><span class="val">94%</span></div>
+          <div class="perf-bar"><div class="perf-fill" style="--target-width:94%"></div></div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-label"><span class="name">WATERPROOF DEPTH</span><span class="val">1.5m / 30min</span></div>
+          <div class="perf-bar"><div class="perf-fill red" style="--target-width:100%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENGINEERING CHALLENGES -->
+  <div class="panel" style="margin-bottom:16px;">
+    <div class="panel-title">ENGINEERING CHALLENGES // RISK MATRIX</div>
+    <div class="challenge-row header">
+      <div>CHALLENGE</div>
+      <div>ENGINEERING SOLUTION</div>
+      <div>DIFFICULTY</div>
+    </div>
+    <div class="challenge-row">
+      <div>7B LLM in 2×2×6 IN box</div>
+      <div>INT4 quantization on Snapdragon NPU. LLaMA 3.2 3B fits in 2GB RAM. 7B needs INT4 + offload to UFS flash.</div>
+      <div style="color:var(--red)">⬛⬛⬛⬛⬜ HARD</div>
+    </div>
+    <div class="challenge-row">
+      <div>Thermal in compact chassis</div>
+      <div>Vapor chamber cooling + graphene thermal pad. Throttle inference during sustained load. Fan-less design possible at 3B model size.</div>
+      <div style="color:var(--gold)">⬛⬛⬛⬜⬜ MEDIUM</div>
+    </div>
+    <div class="challenge-row">
+      <div>&lt;5 second total pipeline</div>
+      <div>Parallel STT + context load. Pre-generate first TTS token while LLM still running. Streaming TTS output. Realistically achievable at 3B model.</div>
+      <div style="color:var(--gold)">⬛⬛⬛⬜⬜ MEDIUM</div>
+    </div>
+    <div class="challenge-row">
+      <div>IP68 + SIM slot + USB-C</div>
+      <div>Silicone-gasketed SIM tray + rubber USB-C flap. Use magnetic pogo-pin charging as alternative. Audio jack routed through sealed membrane.</div>
+      <div style="color:var(--gold)">⬛⬛⬜⬜⬜ MEDIUM</div>
+    </div>
+    <div class="challenge-row">
+      <div>Slide-out earbuds BT auto-pair</div>
+      <div>Hall sensor triggers BT pairing on slide. Earbuds pre-paired in factory. Magnetic rail slide mechanism. Charging via pogo pins in bay.</div>
+      <div style="color:var(--arc)">⬛⬛⬛⬜⬜ MEDIUM</div>
+    </div>
+    <div class="challenge-row">
+      <div>On-device adaptive learning</div>
+      <div>User profile as system prompt injection (no retraining needed). LoRA fine-tune weekly on user data with on-device training. ChromaDB for memory vectors.</div>
+      <div style="color:var(--red)">⬛⬛⬛⬛⬜ HARD</div>
+    </div>
+    <div class="challenge-row">
+      <div>Battery life vs AI compute</div>
+      <div>DSP handles wake word at 5mW. NPU-only inference for voice. WiFi/SIM off by default. 4000mAh gives ~12h mixed use.</div>
+      <div style="color:var(--gold)">⬛⬛⬜⬜⬜ MEDIUM</div>
+    </div>
+  </div>
+
+  <!-- EMOTION ENGINE -->
+  <div class="grid-2" style="margin-bottom:16px;">
+    <div class="panel">
+      <div class="panel-title">EMOTION ENGINE // 7 DETECTED STATES</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="border:1px solid var(--border);padding:10px;background:rgba(0,212,255,0.04);">
+          <div style="font-size:9px;color:var(--arc);letter-spacing:2px;font-family:'Orbitron',sans-serif;">😤 STRESSED</div>
+          <div style="font-size:10px;color:var(--text);margin-top:4px;font-family:'Rajdhani',sans-serif;">Slower, calmer TTS. Prioritize solutions. Short answers.</div>
+        </div>
+        <div style="border:1px solid var(--border);padding:10px;background:rgba(0,255,136,0.03);">
+          <div style="font-size:9px;color:var(--green);letter-spacing:2px;font-family:'Orbitron',sans-serif;">😄 EXCITED</div>
+          <div style="font-size:10px;color:var(--text);margin-top:4px;font-family:'Rajdhani',sans-serif;">Match energy. Faster pace TTS. Enthusiastic tone.</div>
+        </div>
+        <div style="border:1px solid var(--border);padding:10px;background:rgba(245,166,35,0.03);">
+          <div style="font-size:9px;color:var(--gold);letter-spacing:2px;font-family:'Orbitron',sans-serif;">😴 TIRED</div>
+          <div style="font-size:10px;color:var(--text);margin-top:4px;font-family:'Rajdhani',sans-serif;">Low brightness. Whisper mode. Minimal interaction.</div>
+        </div>
+        <div style="border:1px solid var(--border);padding:10px;background:rgba(0,212,255,0.04);">
+          <div style="font-size:9px;color:var(--arc);letter-spacing:2px;font-family:'Orbitron',sans-serif;">🤔 CURIOUS</div>
+          <div style="font-size:10px;color:var(--text);margin-top:4px;font-family:'Rajdhani',sans-serif;">Detailed answers. Pull from internet. Show on display.</div>
+        </div>
+        <div style="border:1px solid var(--border);padding:10px;background:rgba(255,58,58,0.03);">
+          <div style="font-size:9px;color:var(--red);letter-spacing:2px;font-family:'Orbitron',sans-serif;">😠 ANGRY</div>
+          <div style="font-size:10px;color:var(--text);margin-top:4px;font-family:'Rajdhani',sans-serif;">Non-confrontational. Pause mode. Offer to help.</div>
+        </div>
+        <div style="border:1px solid var(--border);padding:10px;background:rgba(0,255,136,0.03);">
+          <div style="font-size:9px;color:var(--green);letter-spacing:2px;font-family:'Orbitron',sans-serif;">😊 HAPPY</div>
+          <div style="font-size:10px;color:var(--text);margin-top:4px;font-family:'Rajdhani',sans-serif;">Conversational. Add humor. Proactive suggestions.</div>
+        </div>
+        <div style="border:1px solid var(--border);padding:10px;background:rgba(0,212,255,0.04);grid-column:span 2;">
+          <div style="font-size:9px;color:var(--arc);letter-spacing:2px;font-family:'Orbitron',sans-serif;">😐 NEUTRAL / FOCUSED</div>
+          <div style="font-size:10px;color:var(--text);margin-top:4px;font-family:'Rajdhani',sans-serif;">Standard Jarvis mode. Direct. Efficient. Facts only.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">EARBUD SLIDE MECHANISM</div>
+      <div style="border:1px solid var(--green);padding:20px;background:rgba(0,255,136,0.03);margin-bottom:12px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:8px;right:8px;font-size:8px;color:var(--green);letter-spacing:1px;">BT AUTO-PAIR</div>
+        <!-- Earbud visual -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px;">
+          <div style="width:30px;height:30px;border-radius:50%;border:2px solid var(--green);background:rgba(0,255,136,0.1);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--green);">L</div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--green),transparent,var(--green));margin:0 10px;position:relative;">
+            <div style="position:absolute;left:50%;transform:translateX(-50%);top:-8px;font-size:8px;color:var(--green);letter-spacing:1px;">←SLIDE→</div>
+          </div>
+          <div style="width:30px;height:30px;border-radius:50%;border:2px solid var(--green);background:rgba(0,255,136,0.1);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--green);">R</div>
+        </div>
+        <div style="text-align:center;font-size:9px;color:var(--green);letter-spacing:1px;margin-top:8px;">MAGNETIC POGO-PIN CHARGING IN BAY</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">TRIGGER</div>
+        <div class="spec-value">Hall Sensor on slide</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">PROTOCOL</div>
+        <div class="spec-value">BT 5.3 LE Audio</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">LATENCY</div>
+        <div class="spec-value">&lt; 50ms</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">CHARGE VIA</div>
+        <div class="spec-value">Pogo pins in bay<br>from main battery</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">EARBUD LIFE</div>
+        <div class="spec-value">~6h (bay charges)</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">FALLBACK</div>
+        <div class="spec-value">3.5mm wired jack</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPLEMENTATION ROADMAP -->
+  <div class="panel" style="margin-bottom:16px;">
+    <div class="panel-title">PROTOTYPE ROADMAP // PHASE BREAKDOWN</div>
+    <div class="grid-3">
+      <div style="border:1px solid var(--arc-dim);padding:16px;position:relative;">
+        <div style="position:absolute;top:-1px;left:0;right:0;height:2px;background:var(--arc);"></div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--arc);letter-spacing:2px;margin-bottom:8px;">PHASE 01 // SOFTWARE</div>
+        <div style="font-size:10px;color:var(--text);line-height:1.8;font-family:'Rajdhani',sans-serif;">
+          ▸ Flash LLaMA 3.2 3B on Android<br>
+          ▸ Integrate Whisper STT locally<br>
+          ▸ Build voice pipeline app<br>
+          ▸ Emotion detection module<br>
+          ▸ ChromaDB memory layer<br>
+          ▸ TTS voice module selector
+        </div>
+        <div style="margin-top:10px;font-size:9px;color:var(--arc-dim);">COST: ~₹0 (phone dev)</div>
+      </div>
+      <div style="border:1px solid var(--gold);padding:16px;position:relative;">
+        <div style="position:absolute;top:-1px;left:0;right:0;height:2px;background:var(--gold);"></div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;">PHASE 02 // HARDWARE DEV</div>
+        <div style="font-size:10px;color:var(--text);line-height:1.8;font-family:'Rajdhani',sans-serif;">
+          ▸ 3D print 6×2×2 enclosure<br>
+          ▸ Source RPi CM4 or dev board<br>
+          ▸ Wire AMOLED 2×2 display<br>
+          ▸ Add mic array + speaker<br>
+          ▸ SIM module integration<br>
+          ▸ USB-C + 3.5mm ports
+        </div>
+        <div style="margin-top:10px;font-size:9px;color:var(--gold);">COST: ~₹8,000–15,000</div>
+      </div>
+      <div style="border:1px solid var(--green);padding:16px;position:relative;">
+        <div style="position:absolute;top:-1px;left:0;right:0;height:2px;background:var(--green);"></div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--green);letter-spacing:2px;margin-bottom:8px;">PHASE 03 // FINAL BUILD</div>
+        <div style="font-size:10px;color:var(--text);line-height:1.8;font-family:'Rajdhani',sans-serif;">
+          ▸ Custom PCB design<br>
+          ▸ Slide earbud mechanism<br>
+          ▸ IP68 waterproof sealing<br>
+          ▸ Qualcomm SoC integration<br>
+          ▸ LoRA fine-tune pipeline<br>
+          ▸ Production chassis CNC
+        </div>
+        <div style="margin-top:10px;font-size:9px;color:var(--green);">COST: ~₹50,000–2L</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-sig">NOVA-1 // MK.I BLUEPRINT</div>
+    <div>DOCUMENT: NOVA1-ENG-001 // REV A</div>
+    <div>CLASSIFICATION: CONCEPT PROTOTYPE</div>
+    <div style="color:var(--arc);">DESIGNED FOR: ANIKET // SKUNKWORKS</div>
+  </div>
+
+</div>
+</body>
+</html>
